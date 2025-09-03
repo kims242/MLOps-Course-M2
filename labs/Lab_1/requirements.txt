@@ -6,3 +6,4 @@ flask
 matplotlib 
 seaborn
 ipykernel
+requests
