@@ -1,21 +1,22 @@
 PY=python
-VENV=.venv
-APP=app.py
+ENV?=.venv
+EXP?=churn-exp
 
 init:
-	python3 -m venv $(VENV) && . $(VENV)/bin/activate && pip install -U pip && pip install -r requirements.txt
+	python -m venv $(ENV) && . $(ENV)/bin/activate && pip install -U pip -r requirements.txt
 
-run:
-	uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+fetch:
+	$(PY) src/utils.py --fetch  # ou créer une fonction fetch_dataset dans utils
+
+train:
+	MLFLOW_EXPERIMENT_NAME=$(EXP) PYTHONPATH=. $(PY) /home/user/MLOps-Course-M2/project/src/train.py --config configs/config.yaml
+
+evaluate:
+	MLFLOW_EXPERIMENT_NAME=$(EXP) PYTHONPATH=. $(PY) src/evaluate.py --config configs/config.yaml
 
 test:
-	pytest -q
+	PYTHONPATH=. $(PY) -m pytest -q
 
-lint:
-	flake8 .
-
-format:
-	ruff check --fix . || true
-
-build:
-	docker build -t mlops-microservice:latest .
+## pour visualiser les expériences
+# mlflow ui --backend-store-uri ./mlruns --port 5000 
+# ==> puis aller sur http://localhost:5000
